@@ -1,0 +1,27 @@
+import requests
+from decouple import config
+
+TAVILY_API_KEY = config("TAVILY_API_KEY")
+BASE_URL = "https://api.tavily.com/search"
+
+def web_search(query: str) -> dict:
+    headers = {
+        "Authorization": f"Bearer {TAVILY_API_KEY}"
+    }
+    params = {
+        "query": query,
+        "search_depth": "basic"
+    }
+    response = requests.get(BASE_URL, headers=headers, params=params)
+    data = response.json()
+
+    if data.get("results"):
+        top = data["results"][0]
+        return {
+            "query": query,
+            "title": top.get("title"),
+            "url": top.get("url"),
+            "content": top.get("content")
+        }
+    else:
+        return {"query": query, "message": "No results found."}
